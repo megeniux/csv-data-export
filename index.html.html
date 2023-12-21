@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Data Exporter</title>
+</head>
+
+<body>
+    <div class="header"><h1>Excel Data Exporter</h1></div>
+    <h2>User Data Table</h2>
+    <p>Click the "Export to CSV" to get the complete data in a <strong>.CSV</strong> file</p>
+    <div class="content">
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Street</th>
+                    <th>Suite</th>
+                    <th>City</th>
+                    <th>Zipcode</th>
+                    <th>Phone</th>
+                    <th>Website</th>
+                    <th>Company Name</th>
+                </tr>
+            </thead>
+            <tbody id="userData">
+
+            </tbody>
+        </table>
+    </div>
+
+    <button onclick="exportToCSV()">Export to CSV</button>
+    <div class="footer"> <p>Made with <span style="color: red">❤</span> by Ayaz.B</p> </div>
+
+    <script>
+        let records = null;
+        // Fetch data from the API
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then(response => response.json())
+            .then(data => {
+                // Update records variable
+                records = data;
+
+                // Get the table body element
+                const tableBody = document.getElementById('userData');
+
+                // Iterate through the data and create table rows
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.address.street}</td>
+                    <td>${user.address.suite}</td>
+                    <td>${user.address.city}</td>
+                    <td>${user.address.zipcode}</td>
+                    <td>${user.phone}</td>
+                    <td>${user.website}</td>
+                    <td>${user.company.name}</td>
+                `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+
+        function exportToCSV() {
+            if (records === null) {
+                alert("No records available");
+                return false;
+            }
+            // Create CSV content
+            let csvContent = "data:text/csv;charset=utf-8," +
+                "ID,Name,Username,Email,Street,Suite,City,Zipcode,Phone,Website,Company Name,Catch Phrase,BS\n";
+
+            // Add each row to the CSV content
+            records.forEach(user => {
+                csvContent += `${user.id},${user.name},${user.username},${user.email},${user.address.street},${user.address.suite},${user.address.city},${user.address.zipcode},${user.phone},${user.website},${user.company.name}\n`;
+            });
+
+            // Create a data URI for the CSV file
+            const encodedURI = encodeURI(csvContent);
+
+            // Create a link element and trigger a download
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedURI);
+            link.setAttribute('download', 'user_data.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+
+</body>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 15px;
+        background: linear-gradient(to bottom, #eeeeee 0%, #cccccc 100%);
+        min-height: 100vh;
+    }
+
+    .header, .footer {
+        background: linear-gradient(to bottom, #606c88 0%, #3f4c6b 100%);
+        padding: 0 15px;
+        text-align: center;
+        border: 1px solid #000;
+        border-radius: 10px;
+        color: #fff;
+    }
+
+    .content {
+        background: linear-gradient(to bottom, #ffffff 0%, #e5e5e5 100%);
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    table th, table td {
+        border: 1px solid;
+        border-collapse: collapse;
+        padding: 3px 5px;
+        white-space: nowrap;
+        text-align: left;
+    }
+
+    button {
+        background: linear-gradient(to bottom, #b4e391 0%, #61c419 50%, #b4e391 100%);
+        padding: 10px;
+        margin: 20px auto;
+        display: table;
+        border: 1px solid;
+        border-radius: 5px;
+    }
+</style>
+
+</html>
